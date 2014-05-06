@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #define FILTER_EMAIL "@nokia.com"
-#define TOP_N 10 /* list top 10 by default */
+#define TOP_N 20 /* list top 10 by default */
 
 /*
  * This git command can sort output according to the number of commits per author and provide 
@@ -27,7 +27,7 @@
  *    1888    m7yang   <ming.3.yang@nokia.com>
  *
  */
-#define GIT_COMMAND  "git shortlog --no-merges -nse"
+#define GIT_COMMAND  "git log --no-merges --after=\"2014-02-10\" --pretty=short|git shortlog -nse"
 #define REPO_COMMAND "repo forall -c '"GIT_COMMAND"'"
 #define MAX_AUTHOR_INFO_LEN 256
 
