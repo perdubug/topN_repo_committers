@@ -15,7 +15,10 @@
 #include <string.h>
 #include <ctype.h>
 
-#define FILTER_EMAIL "@nokia.com"
+char * mail_postfix_filter[] = { "@nokia.com",
+                                 "@microsoft.com",
+                                 0 };
+
 #define TOP_N 20 /* list top 10 by default */
 
 /*
@@ -38,11 +41,21 @@ typedef struct COMMITTER_INFO {
 	struct COMMITTER_INFO * next;
 } COMMITTER_INFO, * P_COMMITTER_INFO;
 
+
 COMMITTER_INFO * committers[26];
 
 int is_in_filter_list(char * single_git_log)
 {
-	return ((strstr(single_git_log,FILTER_EMAIL) == NULL)) ? 0 : 1; 
+	int n = 0;
+	int ret = 0;
+	while (mail_postfix_filter[n] != 0) {
+        if(strstr(single_git_log,mail_postfix_filter[n]) != NULL)
+            ret = 1;
+
+		n++;
+	}
+
+	return ret;
 }
 
 void committer_free(void)
@@ -64,6 +77,44 @@ void committer_free(void)
 			ci = next;
 		}
 	}
+}
+
+/* chech if p1 and p2 are same guy 
+ * p1/p2 format is Name<Email>,e.g. Yang Ming<ming.3.yang@nokia.com>
+ * p1 can be Yang Ming<ming.3.yang@nokia.com>, which can also be m7yang<ming.3.yang@micrsofot.com.That's why we need
+ * this function to check...
+ *
+ * The idea is to check EMail part without postfix
+ * */
+int is_same_guy(char * p1, char * p2)
+{
+	int ret = 1;
+	char * pcursor1;
+	char * pcursor2;
+
+	if (strcasecmp(p1, p2) == 0) {
+		ret = 1;
+	} else {
+		pcursor1 = strstr(p1,"<");
+		pcursor2 = strstr(p2,"<");
+
+		while ( (pcursor1 != NULL && *pcursor1 != '@') &&
+				(pcursor2 != NULL && *pcursor2 != '@'))   {
+
+			if (*pcursor1 != *pcursor2) {
+				ret = 0;
+				break;
+			}
+
+			pcursor1++;
+			pcursor2++;
+		}
+
+		//if (ret) printf("Same guy with diff mail:%s,%s\n",p1,p2);
+
+	}
+
+	return ret;
 }
 
 /*
@@ -91,7 +142,7 @@ void linker_insert(int idx, char * author_info,int commit_nums)
 
         /* merge or append */
 		while (pcursor != NULL) {
-			if (strcmp(pcursor->author, ai) == 0) {
+			if (is_same_guy(pcursor->author, ai) == 0) {
 				/* merge */
 				pcursor->commits += commit_nums;
 				free(ai);
