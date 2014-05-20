@@ -142,7 +142,7 @@ void linker_insert(int idx, char * author_info,int commit_nums)
 
         /* merge or append */
 		while (pcursor != NULL) {
-			if (is_same_guy(pcursor->author, ai) == 0) {
+			if (is_same_guy(pcursor->author, ai) == 1) {
 				/* merge */
 				pcursor->commits += commit_nums;
 				free(ai);
