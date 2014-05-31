@@ -251,7 +251,9 @@ int main( int argc, char *argv[] )
 		top_one = NULL;
 		top_one = pop_top_one();
 		if (top_one == NULL) break;
-		printf("Top%d:%s:%d\n",n+1,top_one->author,top_one->commits);
+
+		/* output as Markdown format for easy pasting on wiki */
+		printf("| Top%d | %s | %d |\n",n+1,top_one->author,top_one->commits);
 		free(top_one);
 	}
 
